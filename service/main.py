@@ -82,19 +82,32 @@ def set_fields_query(all_nested_attributes, issue_attributes, nested_attributes)
 
     return fields
   
+#def create_new_issue():
 
-@app.route('/get_youtrack', methods=['GET'])
-def get_youtrack():  
-    token = 'perm:ZXJpay5sZXZlbg==.NTgtMQ==.A1FHDuYUtnaJyxDtjXA0xnGDptSp3B'
+
+
+@app.route('/post_youtrack_issues', methods=['GET'])
+def post_youtrack_issues(headers):
+    url = 'https://sesam.myjetbrains.com/youtrack/api/issues'
+    data = create_new_issue()
+    response = requests.get(url, headers = headers)
+
+
+
+@app.route('/get_youtrack_issues', methods=['GET'])
+def get_youtrack_issues():  
+    #token = 'perm:ZXJpay5sZXZlbg==.NTgtMQ==.A1FHDuYUtnaJyxDtjXA0xnGDptSp3B'
+    token = 'perm:U2VzYW0=.NTgtMg==.18QKfjc5OrEm4WUR01PR1QfFh4FBfm'
     headers     = {'Authorization': "Bearer {}".format(token)}
     all_nested_attributes, issue_attributes, nested_attributes = get_issue_attributes()
     fields_query = set_fields_query(all_nested_attributes, issue_attributes, nested_attributes)
     pagination = set_pagination(0, 200)
-    query = urlquote('updated: 2019-01-01T12:00 .. Today')
+    query = urlquote('updated: 2015-01-01T12:00 .. Today')
     url = 'https://sesam.myjetbrains.com/youtrack/api/issues?query={}&'.format(query) + fields_query + pagination
+    #url = 'https://sesam.myjetbrains.com/youtrack/api/issues?' + fields_query + pagination
     response = requests.get(url, headers = headers)
     if response.status_code == 200:
-        return jsonify(response.json())
+       return jsonify(response.json())
     else:
         return 'Error code {}'.format(response.status_code)
 
