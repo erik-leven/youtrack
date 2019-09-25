@@ -59,8 +59,7 @@ def post_youtrack_issues(entities):
 @app.route('/get_youtrack_issues', methods=['GET'])
 def get_youtrack_issues():  
     all_nested_attributes, issue_attributes, nested_attributes = get_issue_attributes()
-    fields_query = get_issues_fields_query(all_nested_attributes, issue_attributes, nested_attributes)
-    #fields_query = 'fields=links(direction)'
+    fields_query = make_issues_fields_query(all_nested_attributes, issue_attributes, nested_attributes)
     pagination = set_pagination(0, 20)
     query = urlquote('updated: 2015-01-01T12:00 .. Today')
     url = 'https://sesam.myjetbrains.com/youtrack/api/issues?query={}&'.format(query) + fields_query + pagination
@@ -73,6 +72,7 @@ def get_youtrack_issues():
 @app.route('/get_youtrack_projects', methods=['GET'])
 def get_youtrack_projects():  
     all_nested_attributes, issue_attributes, nested_attributes = get_issue_attributes()
+
     fields_query = get_projects_fields_query(all_nested_attributes)
     pagination = set_pagination(0, 20)
     query = urlquote('updated: 2015-01-01T12:00 .. Today')

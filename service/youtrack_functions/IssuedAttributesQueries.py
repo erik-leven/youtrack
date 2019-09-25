@@ -12,20 +12,20 @@ def get_issue_attributes():
     comment_keys            = ['text','usesMarkdown','textPreview','created','updated']
     tags_keys               = ['name']
     externalIssue_keys      = ['name','url','key']
-    customFields_keys       = ['name', 'id', 'projectCustomField','value']
-    projectCustomField_keys = ['id', 'field']
-    value_keys              = ['avatarUrl','buildLink','color(id)','fullName','id','isResolved','localizedName','login','minutes','name','presentation','text']
+    customFields_keys       = ['name', 'id', 'projectCustomField(id,field(id,name)),value(avatarUrl,buildLink,color(id),fullName,id,isResolved,localizedName,login,minutes,name,presentation,text)']
     voters_keys             = ['hasVote']
     watcher_keys            = ['hasStar']
     attachments_keys        = ['name', 'created','updated','size','extension','charset','mimeType','metaData','draft','removed','base64Content','url','thumbnailURL']
     subtasks_keys           = ['direction']
     parent_keys             = subtasks_keys
-    field_keys              = ['id','name']
 
-    all_nested_attributes = {'project':project_keys,'reporter':reporter_keys,'updater':updater_keys,'draftOwner':draftOwner_keys,'comments':comment_keys,'tags':tags_keys,'externalIssue':externalIssue_keys,'customFields':customFields_keys,'voters':voters_keys,'watchers':watcher_keys,'attachments':attachments_keys,'subtasks':subtasks_keys,'parent':parent_keys,'projectCustomField':projectCustomField_keys,'value':value_keys, 'field':field_keys}
+    all_nested_attributes = {'project':project_keys,'reporter':reporter_keys,'updater':updater_keys,'draftOwner':draftOwner_keys,'comments':comment_keys,'tags':tags_keys,'externalIssue':externalIssue_keys,'customFields':customFields_keys,'voters':voters_keys,'watchers':watcher_keys,'attachments':attachments_keys,'subtasks':subtasks_keys,'parent':parent_keys}
 
     return all_nested_attributes, issue_attributes, nested_attributes
 
+def diff(A, B):
+  B = set(B)
+  return [item for item in A if item not in B] 
 
 def get_user_attributes():
     user_attributes = ['login','fullName','email','roleUrl','ringId','guest','online','banned','tags','savedQueries','avatarUrl','profiles']
@@ -41,87 +41,25 @@ def get_user_fields_query(user_attributes):
         else:
             return fields
 
-def get_issues_fields_query(all_nested_attributes, issue_attributes, nested_attributes):
-    fields = 'fields='
-    for i, issue_attribute in enumerate(issue_attributes):
-        fields += issue_attribute
-        num_issue_attributes = len(issue_attributes)-1
-        if issue_attribute in nested_attributes:
-            fields += '('
-            num_nested_attributes = len(all_nested_attributes[issue_attribute])-1
-            for j, nested_attribute in enumerate(all_nested_attributes[issue_attribute]):
-                fields += nested_attribute
-                if nested_attribute == 'projectCustomField':
-                    fields += '('
-                    num_projectCustomField = len(all_nested_attributes['projectCustomField'])-1
-                    for k, projectCustomField in enumerate(all_nested_attributes['projectCustomField']):
-                        fields += projectCustomField
-                        if projectCustomField == 'field':
-                            fields += '('
-                            num_fields = len(all_nested_attributes['field'])-1
-                            for l, field in enumerate(all_nested_attributes['field']):
-                                fields += field
-                                if l != num_fields:
-                                    fields += ','
-                                else:
-                                    fields += ')'
-                        if k != num_projectCustomField:
-                            fields += ','
-                        else:
-                            fields += ')'
+def make_issues_fields_query(all_nested_attributes, issue_attributes, nested_attributes):
+    all_nested_attributes = str(all_nested_attributes)
+    all_nested_attributes = all_nested_attributes.replace("[", "(")
+    all_nested_attributes = all_nested_attributes.replace("]", ")")
+    all_nested_attributes = all_nested_attributes.replace(" ", "")
+    all_nested_attributes = all_nested_attributes.replace("'", "")
+    all_nested_attributes = all_nested_attributes.replace(":", "")
+    all_nested_attributes = all_nested_attributes.replace("{", "")
+    all_nested_attributes = all_nested_attributes.replace("}", "")
 
-                if nested_attribute == 'value':
-                    fields += '('
-                    num_value = len(all_nested_attributes['value'])-1
-                    for k, value in enumerate(all_nested_attributes['value']):
-                        fields += value
-                        if k != num_value:
-                            fields += ','
-                        else:
-                            fields += ')'
-                if j != num_nested_attributes:
-                    fields += ','
-                else:
-                    fields += ')'
-        if i != num_issue_attributes:
-            fields += ',' 
+    not_nested_attributes = diff(issue_attributes,nested_attributes)
+    not_nested_attributes = str(not_nested_attributes)
+    not_nested_attributes = not_nested_attributes.replace("[","")
+    not_nested_attributes = not_nested_attributes.replace("]","")
+    not_nested_attributes = not_nested_attributes.replace(" ","")
+    not_nested_attributes = not_nested_attributes.replace("'","")
 
-    return fields
+    return 'fields=' + all_nested_attributes + ',' + not_nested_attributes
 
-def post_issues_fields_query(all_nested_attributes, issue_attributes, nested_attributes):
-    fields = 'fields='
-    num_issue_attributes = len(issue_attributes)
-    for i, issue_attribute in enumerate(issue_attributes):
-        fields += issue_attribute
-        if issue_attribute == 'customFields':
-
-            fields += '('
-            num_custom_fields = len(all_nested_attributes['customFields'])
-            for j, customField in enumerate(all_nested_attributes['customFields']):
-                fields += customField
-                if customField in nested_attributes:
-                    fields += '('
-                    num_nested_customField = len(all_nested_attributes[customField])
-                    for k, nested_customField in enumerate(all_nested_attributes[customField]):
-                        fields += nested_customField
-                        #fields += '('
-                        if k != num_nested_customField-1:
-                            fields += ','
-                        else:
-                            fields += ')'
-
-
-                if j != num_custom_fields-1:
-                    fields += ','
-                else:
-                    fields += ')'
-        
-
-        if i != num_issue_attributes - 1:
-            fields += ','
-        else:
-            pass
-    return fields
 
 def get_projects_fields_query(all_nested_attributes):
     project_attributes = all_nested_attributes['project']
@@ -133,15 +71,6 @@ def get_projects_fields_query(all_nested_attributes):
             fields += ','
         else:
             return fields
-
-def find(key, value):
-  for k, v in (value.iteritems() if isinstance(value, dict) else
-               enumerate(value) if isinstance(value, list) else []):
-    if k == key:
-      yield v
-    elif isinstance(v, (dict, list)):
-      for result in find(key, v):
-        yield result
 
 def get_issue_template():
     issue_template = {
