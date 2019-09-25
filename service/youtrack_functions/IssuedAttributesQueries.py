@@ -51,12 +51,8 @@ def make_issues_fields_query(all_nested_attributes, issue_attributes, nested_att
     all_nested_attributes = all_nested_attributes.replace("{", "")
     all_nested_attributes = all_nested_attributes.replace("}", "")
 
-    not_nested_attributes = diff(issue_attributes,nested_attributes)
+    not_nested_attributes = ",".join(diff(issue_attributes,nested_attributes))
     not_nested_attributes = str(not_nested_attributes)
-    not_nested_attributes = not_nested_attributes.replace("[","")
-    not_nested_attributes = not_nested_attributes.replace("]","")
-    not_nested_attributes = not_nested_attributes.replace(" ","")
-    not_nested_attributes = not_nested_attributes.replace("'","")
 
     return 'fields=' + all_nested_attributes + ',' + not_nested_attributes
 
