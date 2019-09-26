@@ -3,13 +3,12 @@ import requests
 import json
 from urllib.parse import quote as urlquote
 from query_data import *
+from oath import *
 from youtrack_functions.IssuedAttributesQueries import *
 app             = Flask(__name__)
 
-sesam_jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE1Njg3MTk1MTguNDA3ODQ4MSwiZXhwIjoxNjAwMzQxNzA4LCJ1c2VyX2lkIjoiNDI1YzQ3YTctNWE4Yi00ZjY1LWEyYzQtMTljNzNiZmRmNGQ3IiwidXNlcl9wcm9maWxlIjp7ImVtYWlsIjoiZXJpay5sZXZlbkBzZXNhbS5pbyIsIm5hbWUiOiJlcmlrLmxldmVuQHNlc2FtLmlvIiwicGljdHVyZSI6Imh0dHBzOi8vcy5ncmF2YXRhci5jb20vYXZhdGFyLzZjYmQxYjkyNTQwNWMyOTVkN2ZmYWQ5M2Y2ODRlODQ2P3M9NDgwJnI9cGcmZD1odHRwcyUzQSUyRiUyRmNkbi5hdXRoMC5jb20lMkZhdmF0YXJzJTJGZWEucG5nIn0sInVzZXJfcHJpbmNpcGFsIjoiZ3JvdXA6RXZlcnlvbmUiLCJwcmluY2lwYWxzIjp7IjBiMDhiNTBiLTZkNDAtNGI4MC1iZDI4LWMzMDM2NjA2NWRhNSI6WyJncm91cDpBZG1pbiJdfSwiYXBpX3Rva2VuX2lkIjoiZjBmMDM0MjctZDdjNi00MGQ5LTk5ZDYtODcxZjgzNjc0Njk5In0.lnlhxqwFX28IK85pEEsL7S8lVqGU4-agM3cqRkhQ0cA8Km9-Gu3nhpPiW5lisY4WFjTrw_Fcnq7hffRKLEn4wCA1gJhMi0HAZ5Kboykb_2XMcKCxa21AZHg-wa0AM8x23-WZ9zrfMuXKZgJFHzjOEmqM19SZLMMG-hHY_56YQq5MFJ_HyURmbiO9XR7f6qwhDkvz8kHdT3DzZFxYMTeExVnVQeE3zL0p_zI3SsdcPE5fIPDlydwXr71Za79GGGkkgEzaJaULuz_IdKTyk0ZA7g5e7zId-ElVcjGXNURcGpL_op70N3A9jG1v8TaQon9PyCViCHIArbCadSreHtrNUw'
 node_id = 'datahub-0b08b50b'
 pipe_name = 'youtrack-issues'
-token = 'perm:U2VzYW0=.NTgtMg==.18QKfjc5OrEm4WUR01PR1QfFh4FBfm'
 Youtrack_headers     = {'Authorization': 'Bearer {}'.format(token),'Content-Type': 'application/json','Accept': 'application/json'}
 #headers = {'Accept': 'application/json','Authorization': 'Bearer ' + token,'Content-Type': 'application/json'}
 Sesam_headers = {'Authorization': "Bearer {}".format(sesam_jwt)}
