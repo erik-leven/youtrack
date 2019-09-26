@@ -3,7 +3,7 @@ import requests
 import json
 from urllib.parse import quote as urlquote
 from query_data import *
-from oath import *
+from auth import *
 from youtrack_functions.IssuedAttributesQueries import *
 app             = Flask(__name__)
 
