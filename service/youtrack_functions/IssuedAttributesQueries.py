@@ -23,6 +23,9 @@ def get_issue_attributes():
 
     return all_nested_attributes, issue_attributes, nested_attributes
 
+def get_agile_attributes():
+    agile_attributes = ['name','owner','visibleFor','visibleForProjectBased','updateableBy','updateableByProjectBased','orphansAtTheTop','hideOrphansSwimlane','estimationField','projects(name)','sprints','currentSprint','columnSettings','swimlaneSettings','sprintsSettings','colorCodingstatus']
+
 def diff(A, B):
   B = set(B)
   return [item for item in A if item not in B] 
@@ -41,7 +44,7 @@ def get_user_fields_query(user_attributes):
         else:
             return fields
 
-def make_issues_fields_query(all_nested_attributes, issue_attributes, nested_attributes):
+def make_issues_fields_query_old(all_nested_attributes, issue_attributes, nested_attributes):
     all_nested_attributes = str(all_nested_attributes)
     all_nested_attributes = all_nested_attributes.replace("[", "(")
     all_nested_attributes = all_nested_attributes.replace("]", ")")

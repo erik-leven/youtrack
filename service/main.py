@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import requests
 import json
 from urllib.parse import quote as urlquote
+from query_data import *
 from youtrack_functions.IssuedAttributesQueries import *
 app             = Flask(__name__)
 
@@ -58,8 +59,8 @@ def post_youtrack_issues(entities):
 
 @app.route('/get_youtrack_issues', methods=['GET'])
 def get_youtrack_issues():  
-    all_nested_attributes, issue_attributes, nested_attributes = get_issue_attributes()
-    fields_query = make_issues_fields_query(all_nested_attributes, issue_attributes, nested_attributes)
+    #all_nested_attributes, issue_attributes, nested_attributes = get_issue_attributes()
+    fields_query = make_issues_fields_query()
     pagination = set_pagination(0, 20)
     query = urlquote('updated: 2015-01-01T12:00 .. Today')
     url = 'https://sesam.myjetbrains.com/youtrack/api/issues?query={}&'.format(query) + fields_query + pagination
@@ -71,27 +72,31 @@ def get_youtrack_issues():
 
 @app.route('/get_youtrack_projects', methods=['GET'])
 def get_youtrack_projects():  
-    all_nested_attributes, issue_attributes, nested_attributes = get_issue_attributes()
-
-    fields_query = get_projects_fields_query(all_nested_attributes)
-    pagination = set_pagination(0, 20)
-    query = urlquote('updated: 2015-01-01T12:00 .. Today')
-
-    fields_query = 'fields=shortName,description,archived,fromEmail,replyToEmail,template,iconUrl,name,id,customFields(value,name,id,projectCustomField(id))'
-    url = 'https://sesam.myjetbrains.com/youtrack/api/admin/projects/0-4?{}'.format(fields_query)
-    #url = 'https://sesam.myjetbrains.com/youtrack/api/admin/projects/0-4/customFields/'
-
-    # 'shortName','description','archived','fromEmail','replyToEmail','template','iconUrl','name', 'id'
+    main_query = make_projects_fields_query()
+    url = 'https://sesam.myjetbrains.com/youtrack/api/admin/projects?{}'.format(main_query)
     response = requests.get(url, headers = Youtrack_headers)
-    if response.status_code == 200:
-       return response.json()#jsonify(response.json())
+    if response.status_code != 200:
+        #logger.error(...)
+        print('Error code {}'.format(response.status_code))
     else:
-        return 'Error code {}'.format(response.status_code)
+        projects = response.json()
+
+    costomfields_query = make_projects_fields_query_customfields()
+    for project in projects:
+        url = 'https://sesam.myjetbrains.com/youtrack/api/admin/projects/{}/fields?{}'.format(project['id'],costomfields_query)
+        print(url)
+        response = requests.get(url, headers = Youtrack_headers)
+        if response.status_code != 200:
+            #logger.error(...)
+            print('Error code {}'.format(response.status_code))
+        else:
+            customfields = response.json()
+            project['customFields'] = customfields
+    return projects
 
 @app.route('/get_youtrack_users', methods=['GET'])
 def get_youtrack_users():  
-    user_attributes  = get_user_attributes()
-    fields_query = get_user_fields_query(user_attributes)
+    fields_query = make_users_fields_query()
     url = 'https://sesam.myjetbrains.com/youtrack/api/admin/users?{}'.format(fields_query)
     response = requests.get(url, headers = Youtrack_headers)
     if response.status_code == 200:
@@ -129,25 +134,34 @@ def get_youtrack_group():
 
 @app.route('/get_youtrack_roles', methods=['GET'])
 def get_youtrack_roles():  
-
-    url = 'https://sesam.myjetbrains.com/youtrack/api/admin/role/observer/permission'#?{}'.format(fields_query)
-    print(url)
-    Youtrack_headers     = {'Authorization': 'Bearer {}'.format(token),'Content-Type': 'application/json','Accept': 'application/json'}
-
+    url = 'https://sesam.myjetbrains.com/hub/api/rest/roles'
     response = requests.get(url, headers = Youtrack_headers)
-    print(response.cookies)
     if response.status_code == 200:
        return response.json()#jsonify(response.json())
     else:
         return print('Error code {}'.format(response.status_code))
 
+@app.route('/get_youtrack_agiles', methods=['GET'])
+def get_youtrack_agiles():  
+    user_attributes  = get_user_attributes()
+    fields_query = get_user_fields_query(user_attributes)
+    #url = 'https://sesam.myjetbrains.com/youtrack/api/admin/users?{}'.format(fields_query)
+    url = 'https://sesam.myjetbrains.com/youtrack/api/agiles?fields=name,owner,visibleFor,visibleForProjectBased,updateableBy,updateableByProjectBased,orphansAtTheTop,hideOrphansSwimlane,estimationField,projects(name),sprints,currentSprint,columnSettings,swimlaneSettings,sprintsSettings,colorCodingstatus'
+    
+    response = requests.get(url, headers = Youtrack_headers)
+    if response.status_code == 200:
+       return response.json()#jsonify(response.json())
+    else:
+        return 'Error code {}'.format(response.status_code)
+
 def circle_func():
-    issues = get_youtrack_issues()
-    print(issues[0])
+    projects = get_youtrack_projects()
+    print(projects)
     ss
-    for issue in issues:
-        print(issue)
+    for project in projects:
+        print(project)
     ss
+
     issues = get_youtrack_issues()
     for issue in issues:
         issue["_id"] = issue['idReadable']
