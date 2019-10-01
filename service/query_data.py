@@ -8,7 +8,7 @@ def all_nested_fields():
     issuevoters = ['hasVote','original(id,fullName)','duplicate(issue(idReadable),user(id,fullName))']
     issuewatchers = ['hasStar','issueWatchers(user(id,fullName),issue(idReadable),isStarred),duplicateWatchers(user(id,fullName),issue(idReadable),isStarred)']
     array_of_issueattachments = ['name','author(id,fullName)','created','updated','size','extension','charset','mimeType','metaData','draft','removed','base64Content','url','issue(idReadable)','comment(name)','thumbnailURL']
-    issuelink = ['direction','linkType(name,localizedName,sourceToTarget,localizedSourceToTarget,targetToSource,localizedTargetToSource,directed,aggregation,readOnly),issues(idReadable),trimmedIssues(idReadable)']
+    issuelink = ['direction','linkType(uid,name,localizedName,sourceToTarget,localizedSourceToTarget,targetToSource,localizedTargetToSource,directed,aggregation,readOnly),issues(idReadable),trimmedIssues(idReadable),id']
     externalissue = ['name','url','key']
     return {'Project':project, 'User':user, 'ArrayofIssueComments':array_of_issuecomments, 'ArrayofIssueCustomFields':array_of_issuecustomfields, 'IssueVoters':issuevoters, 'IssueWatchers':issuewatchers, 'ArrayofIssueAttachments':array_of_issueattachments, 'ArrayofIssueLinks':issuelink, 'ExternalIssue':externalissue}
 
@@ -16,7 +16,7 @@ def all_nested_fields():
 def all_issue_fields():
     return ['idReadable', 'created', 'updated', 'resolved', 'numberInProject', 'project', 'summary', 'description','usesMarkdown','wikifiedDescription',
     'reporter','updater','draftOwner','isDraft','visibility','votes','comments','commentsCount','externalIssue','customFields','voters','watchers',
-    'attachments','subtasks','parent']
+    'attachments','subtasks','parent','links']
 
 def all_field_types():
     return {'idReadable':'Long', 'created':'Long', 'updated':'Long','resolved':'Long','numberInProject':'Long','project':'Project', 'summary':'String',
